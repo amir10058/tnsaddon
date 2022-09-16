@@ -1,6 +1,6 @@
-package de.ampada.tmsaddon.aspect.security;
+package de.ampada.tmsaddon.configuration.jwt;
 
-import de.ampada.tmsaddon.entity.UserRole;
+import de.ampada.tmsaddon.configuration.security.MyUserDetails;
 import de.ampada.tmsaddon.exception.CustomException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -8,21 +8,17 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
@@ -45,16 +41,18 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String username, Set<UserRole> userRoleSet) {
+    //    public String createToken(String username, Set<UserRole> userRoleSet) {
+    public String createToken(String username, Collection<? extends GrantedAuthority> grantedAuthorityCollection) {
 
         Claims claims = Jwts.claims().setSubject(username);
-        if (!CollectionUtils.isEmpty(userRoleSet))
-            claims.put("auth", userRoleSet.stream()
-                    .map(UserRole::getRole)
-                    .filter(Objects::nonNull)
-                    .map(role -> new SimpleGrantedAuthority(role.getName()))
-                    .collect(Collectors.toList())
-            );
+//        if (!CollectionUtils.isEmpty(userRoleSet))
+//            claims.put("auth", userRoleSet.stream()
+//                    .map(UserRole::getRole)
+//                    .filter(Objects::nonNull)
+//                    .map(role -> new SimpleGrantedAuthority(role.getName()))
+//                    .collect(Collectors.toList())
+//            );
+        claims.put("auth", grantedAuthorityCollection);
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
@@ -85,7 +83,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new CustomException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("Expired or invalid JWT token");
         }
     }
 

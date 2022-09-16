@@ -1,5 +1,7 @@
-package de.ampada.tmsaddon.aspect.security;
+package de.ampada.tmsaddon.configuration.security;
 
+import de.ampada.tmsaddon.configuration.jwt.JwtTokenFilterConfigurer;
+import de.ampada.tmsaddon.configuration.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

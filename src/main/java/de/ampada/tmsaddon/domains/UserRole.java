@@ -1,10 +1,14 @@
-package de.ampada.tmsaddon.entity;
+package de.ampada.tmsaddon.domains;
 
 import org.springframework.security.core.GrantedAuthority;
 
 public class UserRole implements GrantedAuthority {
 
     private Role role;
+
+    public UserRole(Role role) {
+        this.role = role;
+    }
 
     @Override
     public String getAuthority() {

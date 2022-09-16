@@ -1,6 +1,6 @@
-package de.ampada.tmsaddon.entity;
+package de.ampada.tmsaddon.domains;
 
-import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,14 +8,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Objects;
 import java.util.Set;
 
-@Document
+@Document(collection = "user")
 public class User implements UserDetails {
-    private @MongoId ObjectId id;
+    @MongoId
+    private String id;
+    @Indexed(unique = true)
     private String username;
     private String password;
-    private Set<UserRole> userRoles;
+    private Set<UserRole> userRolesList;
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
@@ -28,13 +30,13 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public void setUserRoles(Set<UserRole> userRoles) {
-        this.userRoles = userRoles;
+    public void setUserRolesList(Set<UserRole> userRolesList) {
+        this.userRolesList = userRolesList;
     }
 
     @Override
     public Set<UserRole> getAuthorities() {
-        return this.userRoles;
+        return this.userRolesList;
     }
 
     @Override
