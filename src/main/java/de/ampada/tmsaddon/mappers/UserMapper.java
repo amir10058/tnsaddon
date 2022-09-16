@@ -6,14 +6,17 @@ import de.ampada.tmsaddon.entities.User;
 import de.ampada.tmsaddon.entities.UserRole;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(target = "password", ignore = true)
     User convertUserRegisterDTOToEntity(UserRegisterDTO userRegisterDTO);
 
-    @Mapping(source = "userRoleSet", target = "roleNameSet")
+    @Mappings({
+            @Mapping(source = "userRoleSet", target = "roleNameSet"),
+            @Mapping(target = "blank.password", ignore = true)
+    })
     UserDTO convertEntityToDTO(User user);
 
     default String userRoleToRoleName(UserRole userRole) {

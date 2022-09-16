@@ -11,9 +11,9 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class UserRegisterDTO {
 
-    @NotBlank(message = "UserRegisterDTO.username.field.is.blank")
+    @NotBlank(message = "blank.username")
     private String username;
-    @NotBlank(message = "UserRegisterDTO.password.field.is.blank")
+    @NotBlank(message = "blank.password")
     private String password;
 
 }

@@ -54,6 +54,24 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    public UserDTO getByUsername(String username) {
+        LOGGER.info("getByUsername. method init. username:{}", username);
+
+        if (Strings.isNullOrEmpty(username)) {
+            LOGGER.error("getByUsername. username is null or empty. username:{}", username);
+            throw new CustomException("username is null or empty");
+        }
+
+        User userEntityByUsername = userRepository.findUserByUsername(username);
+        if (userEntityByUsername == null) {
+            LOGGER.error("getByUsername.username is not present and is invalid. username:{}", username);
+            throw new CustomException("username is not present and is invalid");
+        }
+
+        return userMapper.convertEntityToDTO(userEntityByUsername);
+    }
+
+    @Override
     public String login(String username, String password) {
         LOGGER.info("login. method init. username:{}", username);
 

@@ -12,11 +12,10 @@ import javax.validation.constraints.NotBlank;
 public class BoardDTO {
 
     private String id;
-    @NotBlank
+    @NotBlank(message = "blank.boardName")
     private String boardName;
     private Long createdOn;
     private Long modifiedOn;
-    @NotBlank
     private String creatorId;
 
 }

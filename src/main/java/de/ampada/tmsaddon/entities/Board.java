@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Document(collection = "board")
@@ -15,6 +16,7 @@ public class Board {
     private String id;
 
     @Indexed(unique = true)
+    @NotBlank(message = "blank.boardName")
     private String boardName;
 
     @CreatedDate
@@ -22,6 +24,7 @@ public class Board {
 
     @LastModifiedDate
     private Date modifiedOn;
+    @NotBlank(message = "blank.creatorId")
     private String creatorId;
 
     public String getId() {
