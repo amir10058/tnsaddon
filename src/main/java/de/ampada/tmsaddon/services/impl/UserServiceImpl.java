@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import de.ampada.tmsaddon.configuration.jwt.JwtTokenProvider;
-import de.ampada.tmsaddon.domains.Role;
-import de.ampada.tmsaddon.domains.User;
-import de.ampada.tmsaddon.domains.UserRole;
-import de.ampada.tmsaddon.dto.UserRegisterDTO;
+import de.ampada.tmsaddon.dtos.UserDTO;
+import de.ampada.tmsaddon.dtos.UserRegisterDTO;
+import de.ampada.tmsaddon.entities.Role;
+import de.ampada.tmsaddon.entities.User;
+import de.ampada.tmsaddon.entities.UserRole;
 import de.ampada.tmsaddon.enums.RoleEnum;
 import de.ampada.tmsaddon.exception.CustomException;
 import de.ampada.tmsaddon.mappers.UserMapper;
@@ -31,7 +32,7 @@ import java.util.stream.Stream;
 
 @Service
 public class UserServiceImpl implements UserService {
-    Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -84,9 +85,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String register(UserRegisterDTO userRegisterDTO) {
+    public UserDTO register(UserRegisterDTO userRegisterDTO) {
         try {
-            LOGGER.info("register. method init. userRegisterDTO:{}", objectMapper.writeValueAsString(userRegisterDTO));
+            LOGGER.info("register. method init. userDTO:{}", objectMapper.writeValueAsString(userRegisterDTO));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -98,19 +99,19 @@ public class UserServiceImpl implements UserService {
              *ACCESSIBLE FROM USERCONTROLLER AND WE DON'T PASS THROUGH BLANK USERNAME OR PASSWORD BUT WE MUST HAVE VALIDTION IN ALL LAYERS.
              **/
             try {
-                LOGGER.error("register.userRegisterDTO is null or its username or password is blanked. userRegisterDTO:{}",
+                LOGGER.error("register.userDTO is null or its username or password is blanked. userDTO:{}",
                         objectMapper.writeValueAsString(userRegisterDTO));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            throw new CustomException("userRegisterDTO is null or its username or password is blanked");
+            throw new CustomException("userDTO is null or its username or password is blanked");
         }
         if (userRepository.existsByUsername(userRegisterDTO.getUsername())) {
             LOGGER.error("register. user is currently registered. username:{}", userRegisterDTO.getUsername());
             throw new CustomException("user is currently registered");
         }
-        User userBeforePersist = userMapper.convertUserRegisterDTOToUser(userRegisterDTO);
-        userBeforePersist.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
+        User userEntityFromDTO = userMapper.convertUserRegisterDTOToEntity(userRegisterDTO);
+        userEntityFromDTO.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
         /*BAGHERI: THESE ARE DEFAULT ROLES FOR REGISTERED CUSTOMER*/
         Set<UserRole> userRoleSet = Stream.of(RoleEnum.ROLE_USER.name(), RoleEnum.ROLE_DUMMY.name())
                 .distinct()
@@ -118,11 +119,10 @@ public class UserServiceImpl implements UserService {
                 .map(UserRole::new)
                 .collect(Collectors.toSet());
 
-        userBeforePersist.setUserRolesList(userRoleSet);
-        userRepository.save(userBeforePersist);
+        userEntityFromDTO.setUserRoleSet(userRoleSet);
+        User userEntityAfterCreate = userRepository.save(userEntityFromDTO);
 
         LOGGER.debug("register. user has registered successfully. username:{}", userRegisterDTO.getUsername());
-
-        return jwtTokenProvider.createToken(userBeforePersist.getUsername(), userRoleSet);
+        return userMapper.convertEntityToDTO(userEntityAfterCreate);
     }
 }
