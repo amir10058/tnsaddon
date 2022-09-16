@@ -18,6 +18,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class BoardServiceImpl implements BoardService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BoardService.class);
@@ -37,7 +39,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardDTO create(BoardDTO boardDTO) {
         try {
-            LOGGER.info("create. method init. boardDTO:{}", objectMapper.writeValueAsString(boardDTO));
+            LOGGER.info("create.method init. boardDTO:{}", objectMapper.writeValueAsString(boardDTO));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -76,5 +78,22 @@ public class BoardServiceImpl implements BoardService {
                 boardEntityAfterCreate.getId(), boardEntityAfterCreate.getCreatorId(), boardEntityAfterCreate.getCreatedOn());
 
         return boardMapper.convertEntityToDTO(boardEntityAfterCreate);
+    }
+
+    @Override
+    public BoardDTO get(String id) {
+        LOGGER.info("get.method init. id:{}", id);
+
+        if (Strings.isNullOrEmpty(id)) {
+            LOGGER.error("get.id is null or empty. id:{}");
+            throw new CustomException("id is null or empty");
+        }
+        Optional<Board> optionalBoardById = boardRepository.findById(id);
+        if (!optionalBoardById.isPresent()) {
+            LOGGER.error("get.id is invalid. id:{}", id);
+            throw new CustomException("id is invalid");
+        }
+
+        return boardMapper.convertEntityToDTO(optionalBoardById.get());
     }
 }

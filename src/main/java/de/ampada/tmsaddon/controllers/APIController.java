@@ -8,10 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -36,5 +33,12 @@ public class APIController {
             e.printStackTrace();
         }
         return boardService.create(boardDTO);
+    }
+
+    @GetMapping("/board")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public BoardDTO getBoard(@RequestParam String id) {
+        LOGGER.info("getBoard. get board request received. id:{}", id);
+        return boardService.get(id);
     }
 }
