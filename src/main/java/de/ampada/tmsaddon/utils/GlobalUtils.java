@@ -10,6 +10,10 @@ public class GlobalUtils {
         return date != null ? date.getTime() : null;
     }
 
+    public static Date convertLongToDate(Long longDate) {
+        return longDate != null ? new Date(longDate) : null;
+    }
+
     public static String convertObjectIdTOString(ObjectId objectId) {
         return objectId != null ? objectId.toString() : null;
     }

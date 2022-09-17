@@ -9,35 +9,49 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
+import java.util.List;
 
-@Document(collection = "board")
-public class Board {
+@Document(collection = "card")
+public class Card {
 
     @MongoId
     private ObjectId id;
 
     @Indexed(unique = true)
-    @NotBlank(message = "blank.boardName")
-    private String boardName;
+    @NotBlank(message = "blank.cardTitle")
+    private String cardTitle;
 
+    private Board board;
     @CreatedDate
     private Date createdOn;
 
     @LastModifiedDate
     private Date modifiedOn;
 
-    private User creatorUser;
+    private List<User> memberUserList;
 
     public ObjectId getId() {
         return id;
     }
 
-    public String getBoardName() {
-        return boardName;
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 
-    public void setBoardName(String boardName) {
-        this.boardName = boardName;
+    public String getCardTitle() {
+        return cardTitle;
+    }
+
+    public void setCardTitle(String cardTitle) {
+        this.cardTitle = cardTitle;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
     }
 
     public Date getCreatedOn() {
@@ -56,15 +70,11 @@ public class Board {
         this.modifiedOn = modifiedOn;
     }
 
-    public User getCreatorUser() {
-        return creatorUser;
+    public List<User> getMemberUserList() {
+        return memberUserList;
     }
 
-    public void setCreatorUser(User creatorUser) {
-        this.creatorUser = creatorUser;
-    }
-
-    public void setId(ObjectId id) {
-        this.id = id;
+    public void setMemberUserList(List<User> memberUserList) {
+        this.memberUserList = memberUserList;
     }
 }
