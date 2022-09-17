@@ -38,9 +38,16 @@ public class APIController {
 
     @GetMapping("/board/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public List<BoardDTO> getBoard(@PathVariable(required = false) String id) {
+    public BoardDTO getBoard(@PathVariable String id) {
         LOGGER.info("getBoard. get board request received. id:{}", id);
         return boardService.get(id);
+    }
+
+    @GetMapping("/board")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public List<BoardDTO> getBoardList() {
+        LOGGER.info("getBoard. get board list request received.");
+        return boardService.getList();
     }
 
     @PutMapping("/board")

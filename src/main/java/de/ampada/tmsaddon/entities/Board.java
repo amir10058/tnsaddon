@@ -1,5 +1,6 @@
 package de.ampada.tmsaddon.entities;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -13,7 +14,7 @@ import java.util.Date;
 public class Board {
 
     @MongoId
-    private String id;
+    private ObjectId id;
 
     @Indexed(unique = true)
     @NotBlank(message = "blank.boardName")
@@ -27,7 +28,7 @@ public class Board {
     @NotBlank(message = "blank.creatorId")
     private String creatorId;
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 

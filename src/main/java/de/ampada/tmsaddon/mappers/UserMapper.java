@@ -4,11 +4,12 @@ import de.ampada.tmsaddon.dtos.UserDTO;
 import de.ampada.tmsaddon.dtos.UserRegisterDTO;
 import de.ampada.tmsaddon.entities.User;
 import de.ampada.tmsaddon.entities.UserRole;
+import de.ampada.tmsaddon.utils.GlobalUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = GlobalUtils.class)
 public interface UserMapper {
 
     User convertUserRegisterDTOToEntity(UserRegisterDTO userRegisterDTO);

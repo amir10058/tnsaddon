@@ -8,7 +8,9 @@ public interface BoardService {
 
     BoardDTO create(BoardDTO boardDTO);
 
-    List<BoardDTO> get(String id);
+    BoardDTO get(String id);
+
+    List<BoardDTO> getList();
 
     BoardDTO update(BoardDTO boardDTO);
 

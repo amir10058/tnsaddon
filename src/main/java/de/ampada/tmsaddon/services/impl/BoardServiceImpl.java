@@ -11,6 +11,7 @@ import de.ampada.tmsaddon.mappers.BoardMapper;
 import de.ampada.tmsaddon.repository.BoardRepository;
 import de.ampada.tmsaddon.services.BoardService;
 import de.ampada.tmsaddon.services.UserService;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,9 +32,6 @@ public class BoardServiceImpl implements BoardService {
 
     @Autowired
     BoardMapper boardMapper;
-
-    @Autowired
-    BoardService boardService;
 
     @Autowired
     UserService userService;
@@ -87,23 +84,32 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<BoardDTO> get(String id) {
+    public BoardDTO get(String id) {
         LOGGER.info("get.method init. id:{}", id);
 
         if (Strings.isNullOrEmpty(id)) {
-            List<Board> allBoardEntityList = boardRepository.findAll();
-            if (CollectionUtils.isEmpty(allBoardEntityList)) {
-                LOGGER.error("get.no board found.");
-                throw new CustomException("no board found.");
-            }
-            return boardMapper.convertEnititiesToDTOs(allBoardEntityList);
+            LOGGER.error("get.id is null or empty. id:{}");
+            throw new CustomException("id is null or empty");
         }
-        Optional<Board> optionalBoardById = boardRepository.findById(id);
+        Optional<Board> optionalBoardById = boardRepository.findById(new ObjectId(id));
         if (!optionalBoardById.isPresent()) {
-            LOGGER.error("get.id is invalid. id:{}", id);
-            throw new CustomException("id is invalid");
+            LOGGER.error("get.id is invalid or no board found with id:{}", id);
+            throw new CustomException("id is invalid or no board found with id:" + id);
         }
-        return Collections.singletonList(boardMapper.convertEntityToDTO(optionalBoardById.get()));
+
+        return boardMapper.convertEntityToDTO(optionalBoardById.get());
+    }
+
+    @Override
+    public List<BoardDTO> getList() {
+        LOGGER.info("getList.method init.");
+        List<Board> allBoardEntityList = boardRepository.findAll();
+        if (CollectionUtils.isEmpty(allBoardEntityList)) {
+            LOGGER.error("get.no board found in DB.");
+            throw new CustomException("no board found in DB.");
+        }
+        LOGGER.debug("getList. {} board found from DB.", allBoardEntityList.size());
+        return boardMapper.convertEnititiesToDTOs(allBoardEntityList);
     }
 
     @Override
@@ -127,7 +133,7 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException("boardName is null or empty. nothing to update!");
         }
 
-        BoardDTO boardDTOById = boardService.get(boardDTO.getId()).get(0);
+        BoardDTO boardDTOById = this.get(boardDTO.getId());
 
         /*BAGHERI: THE ONLY BOARD ATTRIBUTE WHICH CAN CHANGE IS ITS BOARDNAME REFER TO RFP*/
         boardDTOById.setBoardName(boardDTO.getBoardName());
@@ -149,9 +155,9 @@ public class BoardServiceImpl implements BoardService {
             LOGGER.error("delete.id is null or empty. id:{}");
             throw new CustomException("id is null or empty");
         }
-        BoardDTO boardDTOById = boardService.get(id).get(0);
+        BoardDTO boardDTOById = this.get(id);
 
-        boardRepository.deleteById(boardDTOById.getId());
+        boardRepository.deleteById(new ObjectId(boardDTOById.getId()));
         LOGGER.debug("delete.board has been deleted successfully. boardId:{}");
     }
 }

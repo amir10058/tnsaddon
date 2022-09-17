@@ -14,7 +14,8 @@ public interface BoardMapper {
 
     @Mappings({
             @Mapping(target = "createdOn", ignore = true),
-            @Mapping(target = "modifiedOn", ignore = true)
+            @Mapping(target = "modifiedOn", ignore = true),
+            @Mapping(target = "id", ignore = true)
     })
     Board convertDTOToEntity(BoardDTO boardDTO);
 
