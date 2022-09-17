@@ -30,6 +30,9 @@ public class Card {
 
     private List<User> memberUserList;
 
+    public Card() {
+    }
+
     public ObjectId getId() {
         return id;
     }

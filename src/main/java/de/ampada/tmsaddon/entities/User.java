@@ -18,6 +18,10 @@ public class User implements UserDetails {
     private String password;
     private Set<UserRole> userRoleSet;
 
+    public User(ObjectId id) {
+        this.id = id;
+    }
+
     public ObjectId getId() {
         return id;
     }
