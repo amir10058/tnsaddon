@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import de.ampada.tmsaddon.dtos.BoardDTO;
 import de.ampada.tmsaddon.dtos.CardDTO;
+import de.ampada.tmsaddon.dtos.CardSearchDTO;
 import de.ampada.tmsaddon.entities.Card;
 import de.ampada.tmsaddon.entities.User;
 import de.ampada.tmsaddon.exception.CustomException;
@@ -19,6 +20,10 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -48,6 +53,9 @@ public class CardServiceImpl implements CardService {
 
     @Autowired
     CardMapper cardMapper;
+
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -111,6 +119,38 @@ public class CardServiceImpl implements CardService {
         }
         LOGGER.debug("getListByBoardId.{} card found from DB for boardId:{}.", cardEntityListByBoardId.size(), boardId);
         return cardMapper.convertEntitiesToDTOs(cardEntityListByBoardId);
+    }
+
+    @Override
+    public List<CardDTO> search(CardSearchDTO cardSearchDTO) {
+        try {
+            LOGGER.info("search.method init. cardSearchDTO:{}", objectMapper.writeValueAsString(cardSearchDTO));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        if (cardSearchDTO == null || !isAnySearchTermOrOrderByAvailable(cardSearchDTO)) {
+            LOGGER.debug("search. no input for search terms or orderBy. pretend it as getAll.");
+            return cardMapper.convertEntitiesToDTOs(cardRepository.findAll());
+        }
+        Query query = new Query();
+        if (!Strings.isNullOrEmpty(cardSearchDTO.getCardTitle()))
+            query.addCriteria(Criteria.where("cardTitle").is(cardSearchDTO.getCardTitle()));
+        if (!CollectionUtils.isEmpty(cardSearchDTO.getMemberUserIdList())) {
+            List<ObjectId> objectIdList = cardSearchDTO.getMemberUserIdList()
+                    .stream()
+                    .map(ObjectId::new)
+                    .collect(Collectors.toList());
+            query.addCriteria(Criteria.where("memberUserList.id").in(objectIdList));
+        }
+        if (cardSearchDTO.getSortByModifiedOnDesc() != null) {
+            if (cardSearchDTO.getSortByModifiedOnDesc())
+                query.with(Sort.by(Sort.Direction.DESC, "modifiedOn"));
+            else
+                query.with(Sort.by(Sort.Direction.ASC, "modifiedOn"));
+        }
+        List<Card> cardListFilteredByQuery = mongoTemplate.find(query, Card.class);
+
+        return cardMapper.convertEntitiesToDTOs(cardListFilteredByQuery);
     }
 
     @Override
@@ -187,5 +227,11 @@ public class CardServiceImpl implements CardService {
             }
             return null;
         }).filter(Objects::nonNull).map(userMapper::convertDTOToEntity).collect(Collectors.toList());
+    }
+
+    private boolean isAnySearchTermOrOrderByAvailable(CardSearchDTO cardSearchDTO) {
+        return !((Strings.isNullOrEmpty(cardSearchDTO.getCardTitle()) &&
+                CollectionUtils.isEmpty(cardSearchDTO.getMemberUserIdList())) &&
+                cardSearchDTO.getSortByModifiedOnDesc() == null);
     }
 }
