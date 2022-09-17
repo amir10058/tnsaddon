@@ -1,7 +1,7 @@
 package de.ampada.tmsaddon.configuration.security;
 
-import de.ampada.tmsaddon.domains.User;
-import de.ampada.tmsaddon.domains.UserRole;
+import de.ampada.tmsaddon.entities.User;
+import de.ampada.tmsaddon.entities.UserRole;
 import de.ampada.tmsaddon.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

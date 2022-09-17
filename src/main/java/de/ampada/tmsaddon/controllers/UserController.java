@@ -1,12 +1,14 @@
 package de.ampada.tmsaddon.controllers;
 
-import de.ampada.tmsaddon.dto.UserRegisterDTO;
+import de.ampada.tmsaddon.dtos.UserDTO;
+import de.ampada.tmsaddon.dtos.UserRegisterDTO;
 import de.ampada.tmsaddon.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @RestController
@@ -24,8 +26,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody @NotNull UserRegisterDTO userRegisterDTO) {
-        LOGGER.info("register.register request received. userRegisterDTO:{}", userRegisterDTO);
+    public UserDTO register(@RequestBody @NotNull @Valid UserRegisterDTO userRegisterDTO) {
+        LOGGER.info("register.register request received. userDTO:{}", userRegisterDTO);
         return userService.register(userRegisterDTO);
     }
 
