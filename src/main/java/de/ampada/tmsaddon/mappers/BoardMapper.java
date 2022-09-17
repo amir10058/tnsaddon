@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", uses = GlobalUtils.class)
 public interface BoardMapper {
 
@@ -17,5 +19,7 @@ public interface BoardMapper {
     Board convertDTOToEntity(BoardDTO boardDTO);
 
     BoardDTO convertEntityToDTO(Board board);
+
+    List<BoardDTO> convertEnititiesToDTOs(List<Board> boardList);
 
 }
