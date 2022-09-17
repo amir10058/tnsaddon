@@ -16,6 +16,6 @@ public class BoardDTO {
     private String boardName;
     private Long createdOn;
     private Long modifiedOn;
-    private String creatorId;
+    private String creatorUserId;
 
 }

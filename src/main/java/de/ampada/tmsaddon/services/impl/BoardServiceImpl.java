@@ -8,6 +8,7 @@ import de.ampada.tmsaddon.dtos.UserDTO;
 import de.ampada.tmsaddon.entities.Board;
 import de.ampada.tmsaddon.exception.CustomException;
 import de.ampada.tmsaddon.mappers.BoardMapper;
+import de.ampada.tmsaddon.mappers.UserMapper;
 import de.ampada.tmsaddon.repository.BoardRepository;
 import de.ampada.tmsaddon.services.BoardService;
 import de.ampada.tmsaddon.services.UserService;
@@ -37,6 +38,9 @@ public class BoardServiceImpl implements BoardService {
     UserService userService;
 
     @Autowired
+    UserMapper userMapper;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     @Override
@@ -56,29 +60,30 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException("boardDTO or its boardName is null or empty");
         }
 
-        String creatorUserId = null;
+        UserDTO currentLoginUserDTO = null;
         try {
             String currentLoginUsername = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-            UserDTO currentLoginUserDTO = userService.getByUsername(currentLoginUsername);
-            creatorUserId = currentLoginUserDTO.getId();
+            currentLoginUserDTO = userService.getByUsername(currentLoginUsername);
+//            creatorUserId = currentLoginUserDTO.getId();
         } catch (Exception e) {
             LOGGER.error("create. abnormal error happened! ex.msg:{}", e.getMessage());
         }
-        if (Strings.isNullOrEmpty(creatorUserId)) {
-            LOGGER.error("create. could not extract creatorUserId from DB!");
-            throw new CustomException("could not extract creatorUserId from DB!");
+        if (currentLoginUserDTO == null) {
+            LOGGER.error("create. could not extract currentLoginUserDTO from DB!");
+            throw new CustomException("could not extract currentLoginUserDTO from DB!");
         }
 
-        boardDTO.setCreatorId(creatorUserId);
-        LOGGER.debug("create. current user id is :{} and board name :{} is creating by him/her",
-                creatorUserId,
-                boardDTO.getBoardName());
+//        boardDTO.setCreatorUserId(creatorUserId);
+//        LOGGER.debug("create. current user id is :{} and board name :{} is creating by him/her",
+//                creatorUserId,
+//                boardDTO.getBoardName());
 
         Board boardEntityFromDTO = boardMapper.convertDTOToEntity(boardDTO);
+        boardEntityFromDTO.setCreatorUser(userMapper.convertDTOToEntity(currentLoginUserDTO));
         Board boardEntityAfterCreate = boardRepository.save(boardEntityFromDTO);
 
-        LOGGER.debug("create.board has been created successfully. boardId:{}, creatorId:{}, createdOnDate:{}",
-                boardEntityAfterCreate.getId(), boardEntityAfterCreate.getCreatorId(), boardEntityAfterCreate.getCreatedOn());
+        LOGGER.debug("create.board has been created successfully. boardId:{}, creatorUserId:{}, createdOnDate:{}",
+                boardEntityAfterCreate.getId(), boardEntityAfterCreate.getCreatorUser(), boardEntityAfterCreate.getCreatedOn());
 
         return boardMapper.convertEntityToDTO(boardEntityAfterCreate);
     }
@@ -86,18 +91,13 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardDTO get(String id) {
         LOGGER.info("get.method init. id:{}", id);
-
         if (Strings.isNullOrEmpty(id)) {
             LOGGER.error("get.id is null or empty. id:{}");
             throw new CustomException("id is null or empty");
         }
-        Optional<Board> optionalBoardById = boardRepository.findById(new ObjectId(id));
-        if (!optionalBoardById.isPresent()) {
-            LOGGER.error("get.id is invalid or no board found with id:{}", id);
-            throw new CustomException("id is invalid or no board found with id:" + id);
-        }
+        Board boardEntityById = getBoardEntityById(id);
 
-        return boardMapper.convertEntityToDTO(optionalBoardById.get());
+        return boardMapper.convertEntityToDTO(boardEntityById);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException("no board found in DB.");
         }
         LOGGER.debug("getList. {} board found from DB.", allBoardEntityList.size());
-        return boardMapper.convertEnititiesToDTOs(allBoardEntityList);
+        return boardMapper.convertEntitiesToDTOs(allBoardEntityList);
     }
 
     @Override
@@ -133,12 +133,12 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException("boardName is null or empty. nothing to update!");
         }
 
-        BoardDTO boardDTOById = this.get(boardDTO.getId());
-
+//        BoardDTO boardDTOById = this.get(boardDTO.getId());
+        Board boardEntityById = getBoardEntityById(boardDTO.getId());
         /*BAGHERI: THE ONLY BOARD ATTRIBUTE WHICH CAN CHANGE IS ITS BOARDNAME REFER TO RFP*/
-        boardDTOById.setBoardName(boardDTO.getBoardName());
+        boardEntityById.setBoardName(boardDTO.getBoardName());
 
-        Board boardEntityAfterUpdate = boardRepository.save(boardMapper.convertDTOToEntity(boardDTOById));
+        Board boardEntityAfterUpdate = boardRepository.save(boardEntityById);
 
         LOGGER.debug("update.board has been updated successfully. boardId:{}, boardName:{}, modifiedOnDate:{}",
                 boardEntityAfterUpdate.getId(),
@@ -155,9 +155,18 @@ public class BoardServiceImpl implements BoardService {
             LOGGER.error("delete.id is null or empty. id:{}");
             throw new CustomException("id is null or empty");
         }
-        BoardDTO boardDTOById = this.get(id);
+        Board boardEntityById = getBoardEntityById(id);
 
-        boardRepository.deleteById(new ObjectId(boardDTOById.getId()));
+        boardRepository.deleteById(boardEntityById.getId());
         LOGGER.debug("delete.board has been deleted successfully. boardId:{}");
+    }
+
+    private Board getBoardEntityById(String id) {
+        Optional<Board> optionalBoardById = boardRepository.findById(new ObjectId(id));
+        if (!optionalBoardById.isPresent()) {
+            LOGGER.error("get.id is invalid or no board found with id:{}", id);
+            throw new CustomException("id is invalid or no board found with id:" + id);
+        }
+        return optionalBoardById.get();
     }
 }
