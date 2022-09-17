@@ -27,12 +27,7 @@ public interface BoardMapper {
     }
 
     default User userIdToUserEntity(String userId) {
-        if (!Strings.isNullOrEmpty(userId)) {
-            User user = new User();
-            user.setId(new ObjectId(userId));
-            return user;
-        }
-        return null;
+        return !Strings.isNullOrEmpty(userId) ? new User(new ObjectId(userId)) : null;
     }
 
 }

@@ -66,7 +66,12 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("id is null or empty.");
         }
 
-        Optional<User> optionalUserById = userRepository.findById(new ObjectId(id));
+        Optional<User> optionalUserById = Optional.empty();
+        try {
+            optionalUserById = userRepository.findById(new ObjectId(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (!optionalUserById.isPresent()) {
             LOGGER.error("getById.id is not present and is invalid. id:{}", id);
             throw new CustomException("id is not present and is invalid");

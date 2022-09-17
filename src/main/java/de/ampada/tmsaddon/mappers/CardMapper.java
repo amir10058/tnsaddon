@@ -25,10 +25,10 @@ public interface CardMapper {
     List<CardDTO> convertEntitiesToDTOs(List<Card> cardEntityListByBoardId);
 
     default String boardEntityToBoardId(Board board) {
-        return board != null ? board.getId().toString() : null;
+        return board != null && board.getId() != null ? board.getId().toString() : null;
     }
 
     default String userEntityToUserId(User user) {
-        return user != null ? user.getId().toString() : null;
+        return user != null && user.getId() != null ? user.getId().toString() : null;
     }
 }
