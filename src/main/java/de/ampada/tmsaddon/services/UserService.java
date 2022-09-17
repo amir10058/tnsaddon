@@ -5,7 +5,11 @@ import de.ampada.tmsaddon.dtos.UserRegisterDTO;
 
 public interface UserService {
 
-    UserDTO getByUsername(String id);
+    UserDTO getById(String id);
+
+    UserDTO getByUsername(String username);
+
+    UserDTO getCurrentUserDTO();
 
     String login(String username, String password);
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import de.ampada.tmsaddon.dtos.BoardDTO;
-import de.ampada.tmsaddon.dtos.UserDTO;
 import de.ampada.tmsaddon.entities.Board;
 import de.ampada.tmsaddon.exception.CustomException;
 import de.ampada.tmsaddon.mappers.BoardMapper;
@@ -16,8 +15,6 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -60,26 +57,8 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException("boardDTO or its boardName is null or empty");
         }
 
-        UserDTO currentLoginUserDTO = null;
-        try {
-            String currentLoginUsername = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-            currentLoginUserDTO = userService.getByUsername(currentLoginUsername);
-//            creatorUserId = currentLoginUserDTO.getId();
-        } catch (Exception e) {
-            LOGGER.error("create. abnormal error happened! ex.msg:{}", e.getMessage());
-        }
-        if (currentLoginUserDTO == null) {
-            LOGGER.error("create. could not extract currentLoginUserDTO from DB!");
-            throw new CustomException("could not extract currentLoginUserDTO from DB!");
-        }
-
-//        boardDTO.setCreatorUserId(creatorUserId);
-//        LOGGER.debug("create. current user id is :{} and board name :{} is creating by him/her",
-//                creatorUserId,
-//                boardDTO.getBoardName());
-
         Board boardEntityFromDTO = boardMapper.convertDTOToEntity(boardDTO);
-        boardEntityFromDTO.setCreatorUser(userMapper.convertDTOToEntity(currentLoginUserDTO));
+        boardEntityFromDTO.setCreatorUser(userMapper.convertDTOToEntity(userService.getCurrentUserDTO()));
         Board boardEntityAfterCreate = boardRepository.save(boardEntityFromDTO);
 
         LOGGER.debug("create.board has been created successfully. boardId:{}, creatorUserId:{}, createdOnDate:{}",
@@ -105,7 +84,7 @@ public class BoardServiceImpl implements BoardService {
         LOGGER.info("getList.method init.");
         List<Board> allBoardEntityList = boardRepository.findAll();
         if (CollectionUtils.isEmpty(allBoardEntityList)) {
-            LOGGER.error("get.no board found in DB.");
+            LOGGER.error("getList.no board found in DB.");
             throw new CustomException("no board found in DB.");
         }
         LOGGER.debug("getList. {} board found from DB.", allBoardEntityList.size());

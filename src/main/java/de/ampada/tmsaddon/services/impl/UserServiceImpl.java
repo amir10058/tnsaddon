@@ -14,6 +14,7 @@ import de.ampada.tmsaddon.exception.CustomException;
 import de.ampada.tmsaddon.mappers.UserMapper;
 import de.ampada.tmsaddon.repository.UserRepository;
 import de.ampada.tmsaddon.services.UserService;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,6 +57,24 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    public UserDTO getById(String id) {
+        LOGGER.info("getById. method init. id:{}", id);
+
+        if (Strings.isNullOrEmpty(id)) {
+            LOGGER.error("getById. id is null or empty. id:{}", id);
+            throw new CustomException("id is null or empty.");
+        }
+
+        Optional<User> optionalUserById = userRepository.findById(new ObjectId(id));
+        if (!optionalUserById.isPresent()) {
+            LOGGER.error("getById.id is not present and is invalid. id:{}", id);
+            throw new CustomException("id is not present and is invalid");
+        }
+
+        return userMapper.convertEntityToDTO(optionalUserById.get());
+    }
+
+    @Override
     public UserDTO getByUsername(String username) {
         LOGGER.info("getByUsername. method init. username:{}", username);
 
@@ -69,6 +90,22 @@ public class UserServiceImpl implements UserService {
         }
 
         return userMapper.convertEntityToDTO(userEntityByUsername);
+    }
+
+    @Override
+    public UserDTO getCurrentUserDTO() {
+        UserDTO currentLoginUserDTO = null;
+        try {
+            String currentLoginUsername = ((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+            currentLoginUserDTO = this.getByUsername(currentLoginUsername);
+        } catch (Exception e) {
+            LOGGER.error("getCurrentUserDTO. abnormal error happened! ex.msg:{}", e.getMessage());
+        }
+        if (currentLoginUserDTO == null) {
+            LOGGER.error("getCurrentUserDTO. could not extract currentLoginUserDTO from DB!");
+            throw new CustomException("could not extract currentLoginUserDTO from DB!");
+        }
+        return currentLoginUserDTO;
     }
 
     @Override
