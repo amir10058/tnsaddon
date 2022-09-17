@@ -25,8 +25,8 @@ public class Board {
 
     @LastModifiedDate
     private Date modifiedOn;
-    @NotBlank(message = "blank.creatorId")
-    private String creatorId;
+
+    private User creatorUser;
 
     public ObjectId getId() {
         return id;
@@ -56,11 +56,11 @@ public class Board {
         this.modifiedOn = modifiedOn;
     }
 
-    public String getCreatorId() {
-        return creatorId;
+    public User getCreatorUser() {
+        return creatorUser;
     }
 
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
+    public void setCreatorUser(User creatorUser) {
+        this.creatorUser = creatorUser;
     }
 }
