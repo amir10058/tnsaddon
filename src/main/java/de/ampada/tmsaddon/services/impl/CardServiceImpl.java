@@ -3,6 +3,7 @@ package de.ampada.tmsaddon.services.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import de.ampada.tmsaddon.dtos.BoardDTO;
 import de.ampada.tmsaddon.dtos.CardDTO;
 import de.ampada.tmsaddon.entities.Card;
 import de.ampada.tmsaddon.entities.User;
@@ -96,12 +97,19 @@ public class CardServiceImpl implements CardService {
     @Override
     public List<CardDTO> getListByBoardId(String boardId) {
         LOGGER.info("getListByBoardId.method init. boardId:{}", boardId);
-        List<Card> cardEntityListByBoardId = cardRepository.findAllByBoard_Id(new ObjectId(boardId));
+
+        BoardDTO boardDTOById = boardService.get(boardId);
+        try {
+            LOGGER.debug("getListByBoardId. boardDTOById from db is:{}.", objectMapper.writeValueAsString(boardDTOById));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        List<Card> cardEntityListByBoardId = cardRepository.findAllByBoard_Id(new ObjectId(boardDTOById.getId()));
         if (CollectionUtils.isEmpty(cardEntityListByBoardId)) {
             LOGGER.error("getListByBoardId.no card found in DB for boardId:{}.", boardId);
             throw new CustomException("no card found in DB for boardId:" + boardId);
         }
-        LOGGER.debug("getList.{} card found from DB for boardId:{}.", cardEntityListByBoardId.size(), boardId);
+        LOGGER.debug("getListByBoardId.{} card found from DB for boardId:{}.", cardEntityListByBoardId.size(), boardId);
         return cardMapper.convertEntitiesToDTOs(cardEntityListByBoardId);
     }
 

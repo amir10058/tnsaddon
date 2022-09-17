@@ -14,11 +14,6 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = GlobalUtils.class)
 public interface CardMapper {
 
-    @Mappings({
-            @Mapping(target = "createdOn", ignore = true),
-            @Mapping(target = "modifiedOn", ignore = true),
-            @Mapping(target = "id", ignore = true)
-    })
     Card convertDTOToEntity(CardDTO cardDTO);
 
     @Mappings({

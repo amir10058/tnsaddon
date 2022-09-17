@@ -28,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -90,6 +91,18 @@ public class UserServiceImpl implements UserService {
         }
 
         return userMapper.convertEntityToDTO(userEntityByUsername);
+    }
+
+    @Override
+    public List<UserDTO> getList() {
+        LOGGER.info("getList.method init.");
+        List<User> allUserEntityList = userRepository.findAll();
+        if (CollectionUtils.isEmpty(allUserEntityList)) {
+            LOGGER.error("getList.no user found in DB.");
+            throw new CustomException("no user found in DB.");
+        }
+        LOGGER.debug("getList. {} user found in DB.", allUserEntityList.size());
+        return userMapper.convertEntitiesToDTOs(allUserEntityList);
     }
 
     @Override

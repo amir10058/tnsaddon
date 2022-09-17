@@ -87,7 +87,7 @@ public class BoardServiceImpl implements BoardService {
             LOGGER.error("getList.no board found in DB.");
             throw new CustomException("no board found in DB.");
         }
-        LOGGER.debug("getList. {} board found from DB.", allBoardEntityList.size());
+        LOGGER.debug("getList. {} board found in DB.", allBoardEntityList.size());
         return boardMapper.convertEntitiesToDTOs(allBoardEntityList);
     }
 

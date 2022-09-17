@@ -63,4 +63,8 @@ public class Board {
     public void setCreatorUser(User creatorUser) {
         this.creatorUser = creatorUser;
     }
+
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
 }
