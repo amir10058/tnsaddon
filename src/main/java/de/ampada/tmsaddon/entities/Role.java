@@ -1,4 +1,4 @@
-package de.ampada.tmsaddon.domains;
+package de.ampada.tmsaddon.entities;
 
 public class Role {
     private String name;

@@ -35,25 +35,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         // Allow swagger to be accessed without authentication
-        web.ignoring()
-                .antMatchers("/api/signup")
-                .antMatchers("/api/login/**");
+        web.ignoring().antMatchers("/v2/api-docs",
+                "/configuration/ui",
+                "/swagger-resources/**",
+                "/configuration/security",
+                "/swagger-ui.html",
+                "/webjars/**");
     }
-
-//	@Bean
-//	protected CorsConfigurationSource corsConfigurationSource() {
-//		CorsConfiguration config = new CorsConfiguration();
-//		config.setAllowCredentials(true);
-//		config.addAllowedOrigin("*");
-//		config.addAllowedHeader("*");
-//		config.addAllowedMethod("*");
-//
-//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//		source.registerCorsConfiguration("/**", config);
-//		return source;
-//	}
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -63,20 +53,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Entry points
         http.authorizeRequests()
-                .antMatchers("/**").permitAll()//
-                .antMatchers("/api/signup").permitAll()//
-                .antMatchers("/api/login").permitAll()//
+                .antMatchers("/user/register").permitAll()//
+                .antMatchers("/user/login").permitAll()//
                 // Disallow everything else..
                 .anyRequest().authenticated();
 
-        // If a user try to access a resource without having enough permissions
-//        http.exceptionHandling().accessDeniedPage("/api/login");
-
         // Apply JWT
         http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-
-        // Optional, if you want to test the API from a browser
-        // http.httpBasic();
     }
 
 }

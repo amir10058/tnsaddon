@@ -1,4 +1,4 @@
-package de.ampada.tmsaddon.domains;
+package de.ampada.tmsaddon.entities;
 
 import org.springframework.security.core.GrantedAuthority;
 
