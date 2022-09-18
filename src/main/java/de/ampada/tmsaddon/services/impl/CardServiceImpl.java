@@ -223,6 +223,7 @@ public class CardServiceImpl implements CardService {
             try {
                 return userService.getById(userId);
             } catch (CustomException e) {
+                LOGGER.error("getUserEntityByMemberUserIdList. exception happened on getting user from userservice. ex.msg:{}", e.getMessage());
                 e.printStackTrace();
             }
             return null;

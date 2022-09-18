@@ -98,7 +98,7 @@ public class APIController {
     }
 
     @PutMapping("/board/{boardId}/cards")
-    public CardDTO updateCard(@PathVariable String boardId, @RequestBody @Valid CardDTO cardDTO) {
+    public CardDTO updateCard(@PathVariable String boardId, @RequestBody CardDTO cardDTO) {
         try {
             LOGGER.info("updateCard. update card request received. boardId:{}, cardDTO:{}",
                     boardId,
