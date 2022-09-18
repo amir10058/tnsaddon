@@ -18,7 +18,7 @@
     <description>APIs for task management system</description>
 
     <properties>
-        <java.version>8</java.version>
+        <java.version>11</java.version>
         <swagger.version>2.9.2</swagger.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
     </properties>
@@ -78,6 +78,17 @@
             <artifactId>mapstruct-processor</artifactId>
             <version>${org.mapstruct.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
