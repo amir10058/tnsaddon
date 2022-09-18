@@ -1,0 +1,18 @@
+version: "3"
+services:
+  mongo_db:
+    image: "mongo:4.4.13"
+    restart: on-failure
+    ports:
+      - "27017:27017"
+  tnsaddon:
+    build: .
+    image: ampada/tnsaddon
+    restart: on-failure
+    depends_on:
+      - mongo_db
+    environment:
+      - "SPRING_DATA_MONGODB_HOST=mongo_db"
+    ports:
+      - "8080:8080"
+
