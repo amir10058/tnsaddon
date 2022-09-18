@@ -18,7 +18,7 @@
     <description>APIs for task management system</description>
 
     <properties>
-        <java.version>8</java.version>
+        <java.version>11</java.version>
         <swagger.version>2.9.2</swagger.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
     </properties>
